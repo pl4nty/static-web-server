@@ -22,7 +22,7 @@ jobs:
         id: meta_alpine
         uses: docker/metadata-action@v3
         with:
-          images: pl4nty/static-web-server
+          images: ghcr.io/pl4nty/static-web-server
           flavor: |
             latest=false
             suffix=-alpine
@@ -73,7 +73,7 @@ jobs:
         id: meta_scratch
         uses: docker/metadata-action@v3
         with:
-          images: pl4nty/static-web-server
+          images: ghcr.io/pl4nty/static-web-server
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
