@@ -14,7 +14,7 @@ RUN set -ex; \
         "linux/arm/v6") target='arm-unknown-linux-musleabihf' ;; \
         *) echo >&2 "error: unsupported $TARGETPLATFORM architecture"; exit 1 ;; \
     esac; \
-    wget --quiet -O /tmp/static-web-server.tar.gz "https://github.com/static-web-server/static-web-server/releases/download/v${SERVER_VERSION}/static-web-server-v${SERVER_VERSION}-${target}.tar.gz"; \
+    wget --quiet -O /tmp/static-web-server.tar.gz "https://github.com/pl4nty/static-web-server/releases/download/v${SERVER_VERSION}/static-web-server-v${SERVER_VERSION}-${target}.tar.gz"; \
     tar xzvf /tmp/static-web-server.tar.gz; \
     cp static-web-server-v${SERVER_VERSION}-${target}/static-web-server /usr/local/bin/; \
     rm -rf /tmp/static-web-server.tar.gz static-web-server-v${SERVER_VERSION}-${target}; \
