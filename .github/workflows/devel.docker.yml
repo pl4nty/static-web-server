@@ -83,18 +83,6 @@ jobs:
           cat /tmp/version
           echo "SERVER_DOCKERFILE=./docker/alpine/Dockerfile" >> $GITHUB_ENV
       -
-        name: Build and export to Docker client
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          platforms: linux/amd64,linux/386,linux/arm64,linux/arm/v7,linux/arm/v6
-          file: ${{ env.SERVER_DOCKERFILE }}
-          load: true
-          tags: ${{ steps.meta_alpine.outputs.tags }}
-          labels: ${{ steps.meta_alpine.outputs.labels }}
-          build-args: |
-            SERVER_VERSION=${{ env.SERVER_VERSION }}
-      -
         name: Build and push to local registry
         uses: docker/build-push-action@v3
         with:
