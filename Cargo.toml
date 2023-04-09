@@ -80,6 +80,8 @@ tokio-util = { version = "0.7", default-features = false, features = ["io"] }
 toml = "0.5"
 tracing = { version = "0.1", default-features = false, features = ["std"] }
 tracing-subscriber = { version = "0.3", default-features = false, features = ["smallvec", "parking_lot", "fmt", "ansi", "tracing-log"] }
+tracing-opentelemetry = "0.18.0"
+opentelemetry = "0.18.0"
 
 [target.'cfg(all(target_env = "musl", target_pointer_width = "64"))'.dependencies.tikv-jemallocator]
 version = "0.5"
