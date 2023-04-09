@@ -10,8 +10,8 @@ use tracing::Level;
 use tracing_subscriber::{fmt::format::FmtSpan, util::SubscriberInitExt};
 
 use opentelemetry::sdk::export::trace::stdout;
-use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::fmt::writer::MakeWriterExt;
+use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::Registry;
 
 use crate::{Context, Result};
