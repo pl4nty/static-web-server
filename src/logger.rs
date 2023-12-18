@@ -7,14 +7,20 @@
 //!
 
 use tracing::Level;
-use tracing_subscriber::{fmt::format::FmtSpan, util::SubscriberInitExt};
+use tracing_subscriber::{filter::Targets, fmt::format::FmtSpan, prelude::*};
 
-use tracing_subscriber::fmt::writer::MakeWriterExt;
 use tracing_subscriber::layer::SubscriberExt;
-use tracing_subscriber::Registry;
-// use opentelemetry_sdk::trace::tracer::Tracer;
+use tracing_opentelemetry::OpenTelemetryLayer; // MetricsLayer
+
+use opentelemetry_sdk::{
+    // metrics::MeterProvider,
+    runtime,
+    trace::{BatchConfig, Config}
+};
 
 use crate::{Context, Result};
+
+// use std::sync::Arc;
 
 /// Logging system initialization
 pub fn init(log_level: &str) -> Result {
@@ -26,7 +32,8 @@ pub fn init(log_level: &str) -> Result {
 }
 
 /// Initialize logging builder with its levels.
-fn configure(level: &str) -> Result {
+#[tokio::main]
+async fn configure(level: &str) -> Result {
     let level = level
         .parse::<Level>()
         .with_context(|| "failed to parse log level")?;
@@ -36,24 +43,32 @@ fn configure(level: &str) -> Result {
     #[cfg(windows)]
     let enable_ansi = false;
 
-    tokio::runtime::Builder::new_current_thread()
-        .build()
+    let filtered_layer = tracing_subscriber::fmt::layer()
+        .with_writer(std::io::stderr)
+        .with_span_events(FmtSpan::CLOSE)
+        .with_ansi(enable_ansi)
+        .with_filter(
+            Targets::default()
+                .with_default(level)
+                .with_target("static_web_server::info", Level::INFO)
+                .with_target("static_web_server::warn", Level::WARN),
+        );
 
-    let otlp_exporter = opentelemetry_otlp::new_exporter().tonic();
     let tracer = opentelemetry_otlp::new_pipeline()
         .tracing()
-        .with_exporter(otlp_exporter)
-        .install_simple()?;
-    let telemetry = tracing_opentelemetry::layer::<Registry>().with_tracer(tracer);
+        .with_trace_config(Config::default())
+        .with_batch_config(BatchConfig::default())
+        .with_exporter(opentelemetry_otlp::new_exporter().tonic())
+        .install_batch(runtime::Tokio)
+        .unwrap();
 
-    let fmt_layer = tracing_subscriber::fmt::layer()
-        .with_writer(std::io::stderr.with_max_level(level))
-        .with_span_events(FmtSpan::CLOSE)
-        .with_ansi(enable_ansi);
+    let exporter = opentelemetry_prometheus::exporter().build()?;
+    let meter_provider = MeterProvider::builder().with_reader(exporter).build();
 
-    match Registry::default()
-        .with(telemetry)
-        .with(fmt_layer)
+    match tracing_subscriber::registry()
+        .with(OpenTelemetryLayer::new(tracer))
+        .with(MetricsLayer::new(meter_provider))
+        .with(filtered_layer)
         .try_init()
     {
         Err(err) => Err(anyhow!(err)),
