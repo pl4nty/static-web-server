@@ -9,10 +9,10 @@
 use tracing::Level;
 use tracing_subscriber::{fmt::format::FmtSpan, util::SubscriberInitExt};
 
-use opentelemetry::sdk::export::trace::stdout;
 use tracing_subscriber::fmt::writer::MakeWriterExt;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::Registry;
+// use opentelemetry_sdk::trace::tracer::Tracer;
 
 use crate::{Context, Result};
 
@@ -36,7 +36,14 @@ fn configure(level: &str) -> Result {
     #[cfg(windows)]
     let enable_ansi = false;
 
-    let tracer = stdout::new_pipeline().install_simple();
+    tokio::runtime::Builder::new_current_thread()
+        .build()
+
+    let otlp_exporter = opentelemetry_otlp::new_exporter().tonic();
+    let tracer = opentelemetry_otlp::new_pipeline()
+        .tracing()
+        .with_exporter(otlp_exporter)
+        .install_simple()?;
     let telemetry = tracing_opentelemetry::layer::<Registry>().with_tracer(tracer);
 
     let fmt_layer = tracing_subscriber::fmt::layer()
