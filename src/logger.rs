@@ -7,7 +7,12 @@
 //!
 
 use tracing::Level;
-use tracing_subscriber::{filter::Targets, fmt::format::FmtSpan, prelude::*};
+use tracing_subscriber::{fmt::format::FmtSpan, util::SubscriberInitExt};
+
+use opentelemetry::sdk::export::trace::stdout;
+use tracing_subscriber::layer::SubscriberExt;
+use tracing_subscriber::fmt::writer::MakeWriterExt;
+use tracing_subscriber::Registry;
 
 use crate::{Context, Result};
 
@@ -31,19 +36,17 @@ fn configure(level: &str) -> Result {
     #[cfg(windows)]
     let enable_ansi = false;
 
-    let filtered_layer = tracing_subscriber::fmt::layer()
-        .with_writer(std::io::stderr)
-        .with_span_events(FmtSpan::CLOSE)
-        .with_ansi(enable_ansi)
-        .with_filter(
-            Targets::default()
-                .with_default(level)
-                .with_target("static_web_server::info", Level::INFO)
-                .with_target("static_web_server::warn", Level::WARN),
-        );
+    let tracer = stdout::new_pipeline().install_simple();
+    let telemetry = tracing_opentelemetry::layer::<Registry>().with_tracer(tracer);
 
-    match tracing_subscriber::registry()
-        .with(filtered_layer)
+    let fmt_layer = tracing_subscriber::fmt::layer()
+        .with_writer(std::io::stderr.with_max_level(level))
+        .with_span_events(FmtSpan::CLOSE)
+        .with_ansi(enable_ansi);
+
+    match Registry::default()
+        .with(telemetry)
+        .with(fmt_layer)
         .try_init()
     {
         Err(err) => Err(anyhow!(err)),
