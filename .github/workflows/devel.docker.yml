@@ -16,7 +16,7 @@ on:
       - .github/workflows/devel.docker.yml
 
 env:
-  DOCKER_IMAGE: localhost:5000/github.com/static-web-server/static-web-server
+  DOCKER_IMAGE: ghcr.io/pl4nty/static-web-server
 
 jobs:
   docker-alpine:
@@ -31,7 +31,10 @@ jobs:
           - linux/arm/v6
           - linux/ppc64le
           - linux/s390x
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
+    permissions:
+      packages: write
+      contents: read
     services:
       registry:
         image: registry:2
