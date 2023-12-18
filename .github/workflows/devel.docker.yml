@@ -69,18 +69,6 @@ jobs:
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       -
-        name: Build and export to Docker client
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          platforms: ${{ matrix.arch }}
-          file: ${{ env.SERVER_DOCKERFILE }}
-          load: true
-          tags: ${{ steps.meta_alpine.outputs.tags }}
-          labels: ${{ steps.meta_alpine.outputs.labels }}
-          build-args: |
-            SERVER_VERSION=${{ env.SERVER_VERSION }}
-      -
         name: Docker meta alpine
         id: meta_alpine
         uses: docker/metadata-action@v4
@@ -112,6 +100,18 @@ jobs:
           cat /tmp/version >> $GITHUB_ENV
           cat /tmp/version
           echo "SERVER_DOCKERFILE=./docker/alpine/Dockerfile" >> $GITHUB_ENV
+      -
+        name: Build and export to Docker client
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          platforms: ${{ matrix.arch }}
+          file: ${{ env.SERVER_DOCKERFILE }}
+          load: true
+          tags: ${{ steps.meta_alpine.outputs.tags }}
+          labels: ${{ steps.meta_alpine.outputs.labels }}
+          build-args: |
+            SERVER_VERSION=${{ env.SERVER_VERSION }}
       -
         name: Build and push to local registry
         uses: docker/build-push-action@v4
