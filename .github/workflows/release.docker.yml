@@ -6,10 +6,10 @@ on:
 
 jobs:
   docker-image-alpine:
+    runs-on: ubuntu-20.04
     permissions:
       packages: write
       contents: read
-    runs-on: ubuntu-20.04
     if: contains(github.ref, 'v2.')
     steps:
       -
@@ -86,6 +86,9 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: ghcr.io/pl4nty/static-web-server
+          flavor: |
+            latest=false
+            suffix=-debian
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
