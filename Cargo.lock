@@ -1529,6 +1529,7 @@ dependencies = [
  "listenfd",
  "mime_guess",
  "num_cpus",
+ "opentelemetry",
  "opentelemetry-otlp",
  "opentelemetry_sdk",
  "percent-encoding",
