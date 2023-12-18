@@ -129,6 +129,3 @@ pre-build = [
     "rm base.tar.xz",
     "rm -rf /tmp/netbsd",
 ]
-
-[build]
-rustflags = ["--cfg", "tokio_unstable"]
