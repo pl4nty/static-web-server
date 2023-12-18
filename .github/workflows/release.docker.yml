@@ -7,9 +7,6 @@ on:
 jobs:
   docker-image-alpine:
     runs-on: ubuntu-22.04
-    permissions:
-      packages: write
-      contents: read
     if: contains(github.ref, 'v2.')
     steps:
       -

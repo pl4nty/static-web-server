@@ -1,6 +1,6 @@
 ARG SERVER_VERSION=0.0.0
 
-FROM pl4nty/static-web-server:${SERVER_VERSION}-alpine AS build
+FROM ghcr.io/pl4nty/static-web-server:${SERVER_VERSION}-alpine AS build
 
 FROM scratch
 
