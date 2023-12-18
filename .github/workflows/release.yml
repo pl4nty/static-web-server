@@ -66,10 +66,10 @@ jobs:
           - illumos
           - macos
           - macos-arm64
-          - windows-msvc
-          - windows-msvc-i686
-          - windows-msvc-arm64
-          - windows-pc-gnu
+          # - windows-msvc
+          # - windows-msvc-i686
+          # - windows-msvc-arm64
+          # - windows-pc-gnu
         include:
         - build: linux-musl
           os: ubuntu-22.04
