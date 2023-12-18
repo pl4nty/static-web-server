@@ -8,6 +8,7 @@
 
 use headers::{ContentType, HeaderMap, HeaderMapExt, HeaderValue};
 use hyper::{Body, Request, Response, StatusCode};
+use prometheus::Encoder;
 use std::{future::Future, net::IpAddr, net::SocketAddr, path::PathBuf, sync::Arc};
 
 #[cfg(feature = "compression")]
@@ -129,6 +130,9 @@ impl RequestHandler {
         let health_request =
             health && uri_path == "/health" && (method.is_get() || method.is_head());
 
+        let metrics_request: bool = 
+            uri_path == "/metrics" && (method.is_get() || method.is_head());
+
         // Log request information with its remote address if available
         let mut remote_addr_str = String::new();
         if log_remote_addr {
@@ -173,6 +177,24 @@ impl RequestHandler {
                 };
                 let mut resp = Response::new(body);
                 resp.headers_mut().typed_insert(ContentType::html());
+                return Ok(resp);
+            }
+            
+            // Metrics endpoint check
+            if metrics_request {
+                let body = if method.is_get() {
+                    let encoder = prometheus::TextEncoder::new();
+                    let mut buffer = Vec::new();
+                    encoder
+                        .encode(&prometheus::default_registry().gather(), &mut buffer)
+                        .unwrap();
+                    let data = String::from_utf8(buffer.clone()).unwrap();
+
+                    Body::from(data)
+                } else {
+                    Body::empty()
+                };
+                let resp = Response::new(body);
                 return Ok(resp);
             }
 

@@ -10,17 +10,11 @@ use tracing::Level;
 use tracing_subscriber::{filter::Targets, fmt::format::FmtSpan, prelude::*};
 
 use tracing_subscriber::layer::SubscriberExt;
-use tracing_opentelemetry::OpenTelemetryLayer; // MetricsLayer
 
-use opentelemetry_sdk::{
-    // metrics::MeterProvider,
-    runtime,
-    trace::{BatchConfig, Config}
-};
+use tracing_opentelemetry::OpenTelemetryLayer;
+use opentelemetry_sdk::runtime;
 
 use crate::{Context, Result};
-
-// use std::sync::Arc;
 
 /// Logging system initialization
 pub fn init(log_level: &str) -> Result {
@@ -56,18 +50,12 @@ async fn configure(level: &str) -> Result {
 
     let tracer = opentelemetry_otlp::new_pipeline()
         .tracing()
-        .with_trace_config(Config::default())
-        .with_batch_config(BatchConfig::default())
         .with_exporter(opentelemetry_otlp::new_exporter().tonic())
         .install_batch(runtime::Tokio)
         .unwrap();
 
-    let exporter = opentelemetry_prometheus::exporter().build()?;
-    let meter_provider = MeterProvider::builder().with_reader(exporter).build();
-
     match tracing_subscriber::registry()
         .with(OpenTelemetryLayer::new(tracer))
-        .with(MetricsLayer::new(meter_provider))
         .with(filtered_layer)
         .try_init()
     {

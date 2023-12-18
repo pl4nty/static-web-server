@@ -44,7 +44,7 @@ impl Server {
             n => cpus * n,
         };
         let max_blocking_threads = opts.general.max_blocking_threads;
-
+        
         Ok(Server {
             opts,
             worker_threads,
@@ -100,6 +100,13 @@ impl Server {
     {
         tracing::trace!("starting web server");
         server_info!("{} {}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
+
+        // Initialise Tokio metrics
+        prometheus::default_registry()
+            .register(Box::new(
+                tokio_metrics_collector::default_runtime_collector(),
+            ))
+            .unwrap();
 
         // Config "general" options
         let general = self.opts.general;
