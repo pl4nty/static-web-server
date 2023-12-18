@@ -20,17 +20,7 @@ env:
 
 jobs:
   docker-alpine:
-    name: Docker test (alpine)
-    strategy:
-      matrix:
-        arch:
-          - linux/amd64
-          - linux/386
-          - linux/arm64
-          - linux/arm/v7
-          - linux/arm/v6
-          - linux/ppc64le
-          - linux/s390x
+    name: Docker test
     runs-on: ubuntu-20.04
     permissions:
       packages: write
@@ -62,9 +52,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: /tmp/.buildx-cache
-          key: static-web-server-${{ matrix.arch }}-alpine-buildx-${{ github.sha }}
+          key: static-web-server-buildx-${{ github.sha }}
           restore-keys: |
-            static-web-server-${{ matrix.arch }}-alpine-buildx-
+            static-web-server-buildx-
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -105,7 +95,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          platforms: ${{ matrix.arch }}
+          platforms: linux/amd64,linux/386,linux/arm64,linux/arm/v7,linux/arm/v6
           file: ${{ env.SERVER_DOCKERFILE }}
           load: true
           tags: ${{ steps.meta_alpine.outputs.tags }}
@@ -117,7 +107,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          platforms: ${{ matrix.arch }}
+          platforms: linux/amd64,linux/386,linux/arm64,linux/arm/v7,linux/arm/v6
           file: ${{ env.SERVER_DOCKERFILE }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta_alpine.outputs.tags }}
