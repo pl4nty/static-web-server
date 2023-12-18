@@ -130,8 +130,7 @@ impl RequestHandler {
         let health_request =
             health && uri_path == "/health" && (method.is_get() || method.is_head());
 
-        let metrics_request: bool = 
-            uri_path == "/metrics" && (method.is_get() || method.is_head());
+        let metrics_request: bool = uri_path == "/metrics" && (method.is_get() || method.is_head());
 
         // Log request information with its remote address if available
         let mut remote_addr_str = String::new();
@@ -179,7 +178,7 @@ impl RequestHandler {
                 resp.headers_mut().typed_insert(ContentType::html());
                 return Ok(resp);
             }
-            
+
             // Metrics endpoint check
             if metrics_request {
                 let body = if method.is_get() {

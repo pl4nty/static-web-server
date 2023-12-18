@@ -44,7 +44,7 @@ impl Server {
             n => cpus * n,
         };
         let max_blocking_threads = opts.general.max_blocking_threads;
-        
+
         Ok(Server {
             opts,
             worker_threads,

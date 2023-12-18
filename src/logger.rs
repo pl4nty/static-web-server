@@ -6,13 +6,13 @@
 //! Provides logging initialization for the web server.
 //!
 
-use tracing::Level;
 use tracing::error;
-use tracing_subscriber::{filter::Targets, fmt::format::FmtSpan, prelude::*};
+use tracing::Level;
 use tracing_subscriber::layer::SubscriberExt;
+use tracing_subscriber::{filter::Targets, fmt::format::FmtSpan, prelude::*};
 
-use tracing_opentelemetry::OpenTelemetryLayer;
 use opentelemetry_sdk::runtime;
+use tracing_opentelemetry::OpenTelemetryLayer;
 
 use crate::{Context, Result};
 
@@ -56,9 +56,9 @@ async fn configure(level: &str) -> Result {
 
     // crate logger uses eprintln. matching (eg TrySendError) fails with type mismatch though
     // https://github.com/open-telemetry/opentelemetry-rust/issues/549
-    opentelemetry::global::set_error_handler(|error| {
-        error!(target: "static_web_server::error", ?error)
-    })?;
+    opentelemetry::global::set_error_handler(
+        |error| error!(target: "static_web_server::error", ?error),
+    )?;
 
     match tracing_subscriber::registry()
         .with(OpenTelemetryLayer::new(tracer))
