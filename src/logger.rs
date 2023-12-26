@@ -11,7 +11,6 @@ use tracing::Level;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::{filter::Targets, fmt::format::FmtSpan, prelude::*};
 
-use opentelemetry_sdk::runtime;
 use tracing_opentelemetry::OpenTelemetryLayer;
 
 use crate::{Context, Result};
@@ -48,10 +47,15 @@ async fn configure(level: &str) -> Result {
                 .with_target("static_web_server::warn", Level::WARN),
         );
 
+
+    // let tracer = opentelemetry_sdk::trace::TracerProvider::builder()
+    //     .with_simple_exporter(opentelemetry_stdout::SpanExporter::default())
+    //     .build().tracer("static-web-server");
+
     let tracer = opentelemetry_otlp::new_pipeline()
         .tracing()
         .with_exporter(opentelemetry_otlp::new_exporter().tonic())
-        .install_batch(runtime::Tokio)
+        .install_batch(opentelemetry_sdk::runtime::Tokio)
         .unwrap();
 
     // crate logger uses eprintln. matching (eg TrySendError) fails with type mismatch though
